@@ -14,14 +14,14 @@
         android:text="Just Skip"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
-        android:textSize="30sp"
+        android:textSize="24sp"
         android:fontFamily="@font/bellerose"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         />
 
     <Button
-        android:id="@+id/bnt_login"
+        android:id="@+id/btn_login"
         android:text="Login"
         android:background="@android:color/transparent"
         android:textColor="@android:color/white"
