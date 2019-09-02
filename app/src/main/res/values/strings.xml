@@ -2,4 +2,6 @@
     <string name="app_name">BarberShop</string>
     <string name="FACEBOOK_APP_ID">657828164711827</string>
     <string name="ACCOUNT_KIT_CLIENT_TOKEN">5287527ffb7ba3a15a0887da954933f3</string>
+    <string name="hello">Hello Fragment</string>
+    <string name="shopping">Shopping Fragment</string>
 </resources>
