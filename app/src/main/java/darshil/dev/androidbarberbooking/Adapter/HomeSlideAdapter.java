@@ -10,6 +10,10 @@ public class HomeSlideAdapter extends SliderAdapter {
 
     List<Banner> bannerList;
 
+    public HomeSlideAdapter(List<Banner> bannerList) {
+        this.bannerList = bannerList;
+    }
+
 
     @Override
     public int getItemCount() {

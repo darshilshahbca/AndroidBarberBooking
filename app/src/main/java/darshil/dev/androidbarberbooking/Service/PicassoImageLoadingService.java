@@ -2,6 +2,7 @@ package darshil.dev.androidbarberbooking.Service;
 
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.squareup.picasso.Picasso;
 
 import ss.com.bannerslider.ImageLoadingService;
@@ -9,7 +10,7 @@ import ss.com.bannerslider.ImageLoadingService;
 public class PicassoImageLoadingService implements ImageLoadingService {
     @Override
     public void loadImage(String url, ImageView imageView) {
-
+        Picasso.get().load(url).into(imageView);
     }
 
     @Override
