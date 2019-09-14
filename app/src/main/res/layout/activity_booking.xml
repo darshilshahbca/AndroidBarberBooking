@@ -24,7 +24,7 @@
         app:sv_doneStepMarkColor="@android:color/white"
         app:sv_typeface="@font/bellerose" />
 
-    <androidx.viewpager.widget.ViewPager
+    <darshil.dev.androidbarberbooking.Common.NonSwipeViewPager
         android:id="@+id/view_pager"
         android:layout_below="@id/step_view"
         android:layout_above="@+id/layout_button"

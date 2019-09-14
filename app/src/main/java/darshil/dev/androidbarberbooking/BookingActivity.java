@@ -22,6 +22,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import darshil.dev.androidbarberbooking.Adapter.MyViewPagerAdapter;
 import darshil.dev.androidbarberbooking.Common.Common;
+import darshil.dev.androidbarberbooking.Common.NonSwipeViewPager;
 
 public class BookingActivity extends AppCompatActivity {
 
@@ -30,7 +31,7 @@ public class BookingActivity extends AppCompatActivity {
     @BindView(R.id.step_view)
     StepView stepView;
     @BindView(R.id.view_pager)
-    ViewPager viewPager;
+    NonSwipeViewPager viewPager;
     @BindView(R.id.btn_previous_step)
     Button btn_previous_step;
     @BindView(R.id.btn_next_step)
