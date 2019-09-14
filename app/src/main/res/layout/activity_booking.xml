@@ -58,6 +58,7 @@
 
         <Button
             android:id="@+id/btn_next_step"
+            android:enabled="false"
             android:text="Next"
             android:fontFamily="@font/bellerose"
             android:layout_centerHorizontal="true"

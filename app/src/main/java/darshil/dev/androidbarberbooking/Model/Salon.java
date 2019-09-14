@@ -1,16 +1,11 @@
 package darshil.dev.androidbarberbooking.Model;
 
-public class Salon {
+import android.os.Parcel;
+import android.os.Parcelable;
 
-    private String name,address;
+public class Salon implements Parcelable {
 
-    public Salon() {
-    }
-
-    public Salon(String name, String address) {
-        this.name = name;
-        this.address = address;
-    }
+    private String name,address,salonId;
 
     public String getName() {
         return name;
@@ -26,5 +21,46 @@ public class Salon {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getSalonId() {
+        return salonId;
+    }
+
+    public void setSalonId(String salonId) {
+        this.salonId = salonId;
+    }
+
+    public Salon() {
+    }
+
+    protected Salon(Parcel in) {
+        name = in.readString();
+        address = in.readString();
+        salonId = in.readString();
+    }
+
+    public static final Creator<Salon> CREATOR = new Creator<Salon>() {
+        @Override
+        public Salon createFromParcel(Parcel in) {
+            return new Salon(in);
+        }
+
+        @Override
+        public Salon[] newArray(int size) {
+            return new Salon[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(name);
+        parcel.writeString(address);
+        parcel.writeString(salonId);
     }
 }
