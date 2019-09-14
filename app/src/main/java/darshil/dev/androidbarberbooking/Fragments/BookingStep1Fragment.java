@@ -30,6 +30,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import darshil.dev.androidbarberbooking.Adapter.MySalonAdapter;
+import darshil.dev.androidbarberbooking.Common.Common;
 import darshil.dev.androidbarberbooking.Common.SpacesItemDecoration;
 import darshil.dev.androidbarberbooking.Interface.IAllSalonLoadListener;
 import darshil.dev.androidbarberbooking.Interface.IBranchLoadListener;
@@ -71,7 +72,7 @@ public class BookingStep1Fragment extends Fragment implements IAllSalonLoadListe
         iAllSalonLoadListener = this;
         iBranchLoadListener = this;
 
-        dialog = new SpotsDialog.Builder().setContext(getActivity()).build();
+        dialog = new SpotsDialog.Builder().setContext(getActivity()).setCancelable(false).build();
     }
 
     @Nullable
@@ -135,6 +136,8 @@ public class BookingStep1Fragment extends Fragment implements IAllSalonLoadListe
 
     private void loadBrachofCity(String cityName) {
         dialog.show();
+
+        Common.city = cityName;
 
         branchRef = FirebaseFirestore.getInstance()
                 .collection("AllSalon")

@@ -1,17 +1,27 @@
 package darshil.dev.androidbarberbooking;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.shuhart.stepview.StepView;
 
 import java.util.ArrayList;
@@ -23,10 +33,14 @@ import butterknife.OnClick;
 import darshil.dev.androidbarberbooking.Adapter.MyViewPagerAdapter;
 import darshil.dev.androidbarberbooking.Common.Common;
 import darshil.dev.androidbarberbooking.Common.NonSwipeViewPager;
+import darshil.dev.androidbarberbooking.Model.Barber;
+import dmax.dialog.SpotsDialog;
 
 public class BookingActivity extends AppCompatActivity {
 
     LocalBroadcastManager localBroadcastManager;
+    AlertDialog dialog;
+    CollectionReference barberRef;
 
     @BindView(R.id.step_view)
     StepView stepView;
@@ -67,6 +81,50 @@ public class BookingActivity extends AppCompatActivity {
     }
 
     private void loadBarberBySalon(String salonId) {
+        dialog.show();
+        //Now, Select all Barbor of Salon
+        ///AllSalon/NewYork/Branch/q4Uw4qSsI64PxcP3Szdf/Barbers
+        if(!TextUtils.isEmpty(Common.city))
+        {
+        barberRef = FirebaseFirestore.getInstance()
+                .collection("AllSalon")
+                .document(Common.city)
+                .collection("Branch")
+                .document(salonId)
+                .collection("Barbers");
+
+        barberRef.get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        ArrayList<Barber> barbers  = new ArrayList<>();
+                        for(QueryDocumentSnapshot barberSnapshot : task.getResult())
+                        {
+                            Barber barber = barberSnapshot.toObject(Barber.class);
+                            barber.setPassword(""); //Remove Password
+                            barber.setBarberId(barberSnapshot.getId());
+
+                            barbers.add(barber);
+                        }
+
+                        //Send Broadcast to BookingStep2Fragment to Load Recycler
+                        Intent intent = new Intent(Common.KEY_BARBER_LOAD_DONE);
+                        intent.putParcelableArrayListExtra(Common.KEY_BARBER_LOAD_DONE, barbers);
+                        localBroadcastManager.sendBroadcast(intent);
+
+                        dialog.dismiss();
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    dialog.dismiss();
+                }
+        });
+
+        }
+
 
     }
 
@@ -92,6 +150,8 @@ public class BookingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_booking);
         ButterKnife.bind(BookingActivity.this);
 
+        dialog = new SpotsDialog.Builder().setContext(this).setCancelable(false).build();
+
         localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.registerReceiver(buttonNextReceiver, new IntentFilter(Common.KEY_ENALBE_BUTTON_NEXT));
 
@@ -109,6 +169,10 @@ public class BookingActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int i) {
+
+                //Show Step
+                stepView.go(i, true);
+
                 if(i == 0)
                     btn_previous_step.setEnabled(false);
                 else
