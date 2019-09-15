@@ -79,9 +79,18 @@ public class MainActivity extends AppCompatActivity {
             }
             else
             {
+                //Intent object that provides runtime binding between separate components, such as two activities.
+                //Intent Starts Another Activity
+                //Activity Class is a Subclass of Context
                 Intent intent =  new Intent (this, HomeActivity.class);
+
+                //Intent Can Carry data type as Key-Value pairs called EXTRAS
                 intent.putExtra(Common.IS_LOGIN, true);
+
+                //Starts instance of activity specified by theIntent
                 startActivity(intent);
+
+
                 finish();
             }
 

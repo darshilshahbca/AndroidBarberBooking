@@ -58,6 +58,13 @@ public class BookingActivity extends AppCompatActivity {
             {
                 Common.step--;
                 viewPager.setCurrentItem(Common.step);
+                if(Common.step < 3) //Always Enable Next when step <  3
+                {
+                    btn_next_step.setEnabled(true);
+                    setColorButton();
+                }
+
+
             }
     }
 
@@ -79,12 +86,27 @@ public class BookingActivity extends AppCompatActivity {
                     loadTimeSlotOfBarber(Common.currentBarber.getBarberId());
 
 //                        Toast.makeText(this, ""+Common.currentBarber.getBarberId(), Toast.LENGTH_SHORT).show();
+
             }
+            else if(Common.step == 3 ) //Confirm
+            {
+                if(Common.currentTimeSlot!=-1)
+                    confirmBooking();
+
+            }
+
             viewPager.setCurrentItem(Common.step);
         }
 
 
 //        Toast.makeText(this, ""+Common.currentSalon.getSalonId(), Toast.LENGTH_SHORT).show();
+    }
+
+    private void confirmBooking() {
+        //Send Broadcast to Fragment four
+        Intent intent = new Intent(Common.KEY_CONFIRM_BOOKING);
+        localBroadcastManager.sendBroadcast(intent);
+
     }
 
     private void loadTimeSlotOfBarber(String barberId) {
@@ -97,7 +119,7 @@ public class BookingActivity extends AppCompatActivity {
     private void loadBarberBySalon(String salonId) {
         dialog.show();
         //Now, Select all Barbor of Salon
-        ///AllSalon/NewYork/Branch/q4Uw4qSsI64PxcP3Szdf/Barbers
+        ///AlalSalon/NewYork/Branch/q4Uw4qSsI64PxcP3Szdf/Barbers
         if(!TextUtils.isEmpty(Common.city))
         {
         barberRef = FirebaseFirestore.getInstance()
@@ -153,6 +175,8 @@ public class BookingActivity extends AppCompatActivity {
                 Common.currentSalon = intent.getParcelableExtra(Common.KEY_SALON_STORE);
             else if(step == 2)
                 Common.currentBarber = intent.getParcelableExtra(Common.KEY_BARBER_SELECTED);
+            else if(step == 3)
+                Common.currentTimeSlot = intent.getIntExtra(Common.KEY_TIME_SLOT, -1);
 
 
             btn_next_step.setEnabled(true);
@@ -160,9 +184,23 @@ public class BookingActivity extends AppCompatActivity {
         }
     };
 
+    //Code Added - Darshil
+    //BroadCast Receiver
+    private BroadcastReceiver disableNextReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            btn_next_step.setEnabled(false);
+            setColorButton();
+        }
+    };
+    //Code Added - Darshil
+
+
     @Override
     protected void onDestroy() {
         localBroadcastManager.unregisterReceiver(buttonNextReceiver);
+        localBroadcastManager.unregisterReceiver(disableNextReceiver);
         super.onDestroy();
     }
 
@@ -176,6 +214,11 @@ public class BookingActivity extends AppCompatActivity {
 
         localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.registerReceiver(buttonNextReceiver, new IntentFilter(Common.KEY_ENALBE_BUTTON_NEXT));
+
+        //Code Added - Darshil
+        //Code Added to Disable (in case Enable when SLOT is FULL)
+        localBroadcastManager.registerReceiver(disableNextReceiver, new IntentFilter(Common.KEY_DISABLE_BUTTON_NEXT));
+        //Code Added - Darshil
 
         setupStepView();
         setColorButton();
@@ -233,7 +276,6 @@ public class BookingActivity extends AppCompatActivity {
             btn_previous_step.setBackgroundResource(android.R.color.darker_gray);
         }
     }
-
 
     private void setupStepView() {
         List<String> stepList = new ArrayList();

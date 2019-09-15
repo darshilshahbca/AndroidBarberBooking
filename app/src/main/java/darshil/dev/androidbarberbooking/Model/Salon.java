@@ -5,7 +5,31 @@ import android.os.Parcelable;
 
 public class Salon implements Parcelable {
 
-    private String name,address,salonId;
+    private String name,address,salonId,website, phone, openHours;
+
+    public Salon() {
+    }
+
+    protected Salon(Parcel in) {
+        name = in.readString();
+        address = in.readString();
+        salonId = in.readString();
+        website = in.readString();
+        phone = in.readString();
+        openHours = in.readString();
+    }
+
+    public static final Creator<Salon> CREATOR = new Creator<Salon>() {
+        @Override
+        public Salon createFromParcel(Parcel in) {
+            return new Salon(in);
+        }
+
+        @Override
+        public Salon[] newArray(int size) {
+            return new Salon[size];
+        }
+    };
 
     public String getName() {
         return name;
@@ -31,26 +55,29 @@ public class Salon implements Parcelable {
         this.salonId = salonId;
     }
 
-    public Salon() {
+    public String getWebsite() {
+        return website;
     }
 
-    protected Salon(Parcel in) {
-        name = in.readString();
-        address = in.readString();
-        salonId = in.readString();
+    public void setWebsite(String website) {
+        this.website = website;
     }
 
-    public static final Creator<Salon> CREATOR = new Creator<Salon>() {
-        @Override
-        public Salon createFromParcel(Parcel in) {
-            return new Salon(in);
-        }
+    public String getPhone() {
+        return phone;
+    }
 
-        @Override
-        public Salon[] newArray(int size) {
-            return new Salon[size];
-        }
-    };
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getOpenHours() {
+        return openHours;
+    }
+
+    public void setOpenHours(String openHours) {
+        this.openHours = openHours;
+    }
 
     @Override
     public int describeContents() {
@@ -62,5 +89,8 @@ public class Salon implements Parcelable {
         parcel.writeString(name);
         parcel.writeString(address);
         parcel.writeString(salonId);
+        parcel.writeString(website);
+        parcel.writeString(phone);
+        parcel.writeString(openHours);
     }
 }

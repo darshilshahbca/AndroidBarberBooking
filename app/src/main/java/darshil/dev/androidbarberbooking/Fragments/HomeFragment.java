@@ -106,6 +106,12 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
             loadBanner();
             loadLookBook();
         }
+        /*//Added by Darshil
+        else{
+            loadBanner();
+            loadLookBook();
+        }
+        //Added by Darshil*/
 
         return view;
     }

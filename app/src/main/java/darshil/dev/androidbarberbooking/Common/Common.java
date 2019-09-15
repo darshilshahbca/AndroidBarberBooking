@@ -1,5 +1,8 @@
 package darshil.dev.androidbarberbooking.Common;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import darshil.dev.androidbarberbooking.Model.Barber;
 import darshil.dev.androidbarberbooking.Model.Salon;
 import darshil.dev.androidbarberbooking.Model.User;
@@ -12,12 +15,19 @@ public class Common {
     public static final String KEY_STEP = "STEP";
     public static final String KEY_BARBER_SELECTED = "BARBER_SELECTED";
     public static final int TIME_SLOT_TOTAL = 20;
+    public static final Object DISABLE_TAG = "DISABLE";
+    public static final String KEY_TIME_SLOT = "TIME_SLOT";
+    public static final String KEY_CONFIRM_BOOKING = "CONFIRM_BOOKING" ;
+    public static final String KEY_DISABLE_BUTTON_NEXT = "DISABLE_BUTTON_NEXT";
     public static String IS_LOGIN = "IsLogin";
     public static User currentUser;
     public static Salon currentSalon ;
     public static int step = 0;
     public static String city = "";
     public static Barber currentBarber;
+    public static int currentTimeSlot = -1;
+    public static Calendar currentDate = Calendar.getInstance();
+    public static SimpleDateFormat simpleFormatDate = new SimpleDateFormat("dd_MM_yyyy"); //ONly Use when need format Key
 
     public static String convertTimeSlotToString(int slot) {
         switch (slot)
