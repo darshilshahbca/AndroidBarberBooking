@@ -4,4 +4,8 @@
     <string name="ACCOUNT_KIT_CLIENT_TOKEN">5287527ffb7ba3a15a0887da954933f3</string>
     <string name="hello">Hello Fragment</string>
     <string name="shopping">Shopping Fragment</string>
+    <string name="address_bullet">\u2022 Address:</string>
+    <string name="time_bullet">\u2022 Time:</string>
+    <string name="stylish_bullet" >\u2022 Stylist:</string>
+    <string name="bullet" >\u2022 \u0020</string>
 </resources>

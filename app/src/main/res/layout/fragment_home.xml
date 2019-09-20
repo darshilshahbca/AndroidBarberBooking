@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/homeBackground"
     android:orientation="vertical"
     tools:context=".Fragments.HomeFragment">
@@ -50,140 +51,272 @@
     </LinearLayout>
 
     <LinearLayout
-        android:orientation="horizontal"
-        android:weightSum="4"
-        android:padding="8dp"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <LinearLayout
+            android:orientation="horizontal"
+            android:weightSum="4"
+            android:padding="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_view_booking"
+                android:layout_marginRight="8dp"
+                xmlns:tools="http://schemas.android.com/apk/res-auto"
+                tools:cardCornerRadius="8dp"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:src="@drawable/ic_event_note_black_24dp"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center_horizontal"/>
+                    <TextView
+                        android:text="Booking"
+                        android:fontFamily="@font/bellerose"
+                        android:layout_gravity="center_horizontal"
+                        android:textSize="@dimen/textCardSize"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+
+            </androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_view_cart"
+                android:layout_marginRight="8dp"
+                xmlns:tools="http://schemas.android.com/apk/res-auto"
+                tools:cardCornerRadius="8dp"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:src="@drawable/ic_shopping_cart_black_24dp"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center_horizontal"/>
+
+                    <TextView
+                        android:text="Cart"
+                        android:fontFamily="@font/bellerose"
+                        android:layout_gravity="center_horizontal"
+                        android:textSize="@dimen/textCardSize"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+
+            </androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_view_history"
+                android:layout_marginRight="8dp"
+                xmlns:tools="http://schemas.android.com/apk/res-auto"
+                tools:cardCornerRadius="8dp"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:src="@drawable/ic_history_black_24dp"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center_horizontal"/>
+
+                    <TextView
+                        android:text="History"
+                        android:fontFamily="@font/bellerose"
+                        android:layout_gravity="center_horizontal"
+                        android:textSize="@dimen/textCardSize"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+
+            </androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_view_notification"
+                android:layout_marginRight="8dp"
+                xmlns:tools="http://schemas.android.com/apk/res-auto"
+                tools:cardCornerRadius="8dp"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:src="@drawable/ic_notifications_black_24dp"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center_horizontal"/>
+
+                    <TextView
+                        android:text="Notification"
+                        android:fontFamily="@font/bellerose"
+                        android:layout_gravity="center_horizontal"
+                        android:textSize="@dimen/textCardSize"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+
+                </LinearLayout>
+
+
+            </androidx.cardview.widget.CardView>
+
+
+        </LinearLayout>
+
         <androidx.cardview.widget.CardView
-            android:id="@+id/card_view_booking"
+            android:id="@+id/card_booking_info"
+            app:cardCornerRadius="8dp"
+            android:visibility="visible"
+            android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
-            xmlns:tools="http://schemas.android.com/apk/res-auto"
-            tools:cardCornerRadius="8dp"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <LinearLayout
                 android:orientation="vertical"
+                android:padding="8dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <ImageView
-                    android:src="@drawable/ic_event_note_black_24dp"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center_horizontal"/>
-                <TextView
-                    android:text="Booking"
-                    android:fontFamily="@font/bellerose"
-                    android:layout_gravity="center_horizontal"
-                    android:textSize="@dimen/textCardSize"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-            </LinearLayout>
+                    <ImageView
+                        android:layout_gravity="center_vertical"
+                        android:src="@drawable/ic_event_note_black_24dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
 
-
-        </androidx.cardview.widget.CardView>
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card_view_cart"
-            android:layout_marginRight="8dp"
-            xmlns:tools="http://schemas.android.com/apk/res-auto"
-            tools:cardCornerRadius="8dp"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content">
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:src="@drawable/ic_shopping_cart_black_24dp"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center_horizontal"/>
-
-                <TextView
-                    android:text="Cart"
-                    android:fontFamily="@font/bellerose"
-                    android:layout_gravity="center_horizontal"
-                    android:textSize="@dimen/textCardSize"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-            </LinearLayout>
+                    <TextView
+                        android:text="Your Booking Information"
+                        android:layout_marginLeft="8dp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/bellerose"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"  />
 
 
-        </androidx.cardview.widget.CardView>
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card_view_history"
-            android:layout_marginRight="8dp"
-            xmlns:tools="http://schemas.android.com/apk/res-auto"
-            tools:cardCornerRadius="8dp"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content">
+                </LinearLayout>
 
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                <ImageView
-                    android:src="@drawable/ic_history_black_24dp"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center_horizontal"/>
+                    <TextView
+                        android:text="@string/address_bullet"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
 
-                <TextView
-                    android:text="History"
-                    android:fontFamily="@font/bellerose"
-                    android:layout_gravity="center_horizontal"
-                    android:textSize="@dimen/textCardSize"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    <TextView
+                        android:id="@+id/txt_salon_address"
+                        android:text=" Address salon"
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
 
-            </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:text="@string/time_bullet"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/txt_time"
+                        android:text=" Time"
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
 
 
-        </androidx.cardview.widget.CardView>
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card_view_notification"
-            android:layout_marginRight="8dp"
-            xmlns:tools="http://schemas.android.com/apk/res-auto"
-            tools:cardCornerRadius="8dp"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content">
 
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                </LinearLayout>
 
-                <ImageView
-                    android:src="@drawable/ic_notifications_black_24dp"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center_horizontal"/>
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                <TextView
-                    android:text="Notification"
-                    android:fontFamily="@font/bellerose"
-                    android:layout_gravity="center_horizontal"
-                    android:textSize="@dimen/textCardSize"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    <TextView
+                        android:text="@string/stylish_bullet"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/txt_salon_barber"
+                        android:text=" David"
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:text="@string/bullet"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/txt_time_remain"
+                        android:text=" Time"
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+
+                </LinearLayout>
 
 
             </LinearLayout>
 
 
+
         </androidx.cardview.widget.CardView>
+
 
 
     </LinearLayout>

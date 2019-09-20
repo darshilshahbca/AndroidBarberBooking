@@ -184,23 +184,23 @@ public class BookingActivity extends AppCompatActivity {
         }
     };
 
-    //Code Added - Darshil
-    //BroadCast Receiver
-    private BroadcastReceiver disableNextReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            btn_next_step.setEnabled(false);
-            setColorButton();
-        }
-    };
-    //Code Added - Darshil
+//    //Code Added - Darshil
+//    //BroadCast Receiver
+//    private BroadcastReceiver disableNextReceiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//
+//            btn_next_step.setEnabled(false);
+//            setColorButton();
+//        }
+//    };
+//    //Code Added - Darshil
 
 
     @Override
     protected void onDestroy() {
         localBroadcastManager.unregisterReceiver(buttonNextReceiver);
-        localBroadcastManager.unregisterReceiver(disableNextReceiver);
+//        localBroadcastManager.unregisterReceiver(disableNextReceiver);
         super.onDestroy();
     }
 
@@ -215,10 +215,10 @@ public class BookingActivity extends AppCompatActivity {
         localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.registerReceiver(buttonNextReceiver, new IntentFilter(Common.KEY_ENALBE_BUTTON_NEXT));
 
-        //Code Added - Darshil
-        //Code Added to Disable (in case Enable when SLOT is FULL)
-        localBroadcastManager.registerReceiver(disableNextReceiver, new IntentFilter(Common.KEY_DISABLE_BUTTON_NEXT));
-        //Code Added - Darshil
+//        //Code Added - Darshil
+//        //Code Added to Disable (in case Enable when SLOT is FULL)
+//        localBroadcastManager.registerReceiver(disableNextReceiver, new IntentFilter(Common.KEY_DISABLE_BUTTON_NEXT));
+//        //Code Added - Darshil
 
         setupStepView();
         setColorButton();

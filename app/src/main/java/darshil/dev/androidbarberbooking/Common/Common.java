@@ -26,7 +26,7 @@ public class Common {
     public static String city = "";
     public static Barber currentBarber;
     public static int currentTimeSlot = -1;
-    public static Calendar currentDate = Calendar.getInstance();
+    public static Calendar bookingDate = Calendar.getInstance();
     public static SimpleDateFormat simpleFormatDate = new SimpleDateFormat("dd_MM_yyyy"); //ONly Use when need format Key
 
     public static String convertTimeSlotToString(int slot) {

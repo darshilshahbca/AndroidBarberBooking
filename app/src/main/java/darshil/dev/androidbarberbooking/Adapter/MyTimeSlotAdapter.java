@@ -101,29 +101,28 @@ public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.My
 
                     //Original Code Commented
                     //Our selected card will be change color
-//                    myViewHolder.card_time_slot.setCardBackgroundColor(context.getResources().getColor(android.R.color.holo_orange_dark));
+                    myViewHolder.card_time_slot.setCardBackgroundColor(context.getResources().getColor(android.R.color.holo_orange_dark));
 //
-//                    //After that, Send Broadcast to enable button Next
-//                    Intent intent = new Intent(Common.KEY_ENALBE_BUTTON_NEXT);
-//                    intent.putExtra(Common.KEY_TIME_SLOT, i); //Put Index of Time Slot We have selected
-//                    intent.putExtra(Common.KEY_STEP, 3);
-//                    localBroadcastManager.sendBroadcast(intent);
+                    //After that, Send Broadcast to enable button Next
+                    Intent intent = new Intent(Common.KEY_ENALBE_BUTTON_NEXT);
+                    intent.putExtra(Common.KEY_TIME_SLOT, i); //Put Index of Time Slot We have selected
+                    intent.putExtra(Common.KEY_STEP, 3);
+                    localBroadcastManager.sendBroadcast(intent);
 
-
-                    //Code Added by Dashil
-                    if(myViewHolder.card_time_slot.getTag() == null) {
-                        myViewHolder.card_time_slot.setCardBackgroundColor(context.getResources().getColor(android.R.color.holo_orange_dark));
-
-                        //After that, Send Broadcast to enable button Next
-                        Intent intent = new Intent(Common.KEY_ENALBE_BUTTON_NEXT);
-                        intent.putExtra(Common.KEY_TIME_SLOT, i); //Put Index of Time Slot We have selected
-                        intent.putExtra(Common.KEY_STEP, 3);
-                        localBroadcastManager.sendBroadcast(intent);
-                    } else {
-                        Intent intent = new Intent(Common.KEY_DISABLE_BUTTON_NEXT);
-                        localBroadcastManager.sendBroadcast(intent);
-                    }
-                    //Code Added by Darshil
+//                    //Code Added by Dashil
+//                    if(myViewHolder.card_time_slot.getTag() == null) {
+//                        myViewHolder.card_time_slot.setCardBackgroundColor(context.getResources().getColor(android.R.color.holo_orange_dark));
+//
+//                        //After that, Send Broadcast to enable button Next
+//                        Intent intent = new Intent(Common.KEY_ENALBE_BUTTON_NEXT);
+//                        intent.putExtra(Common.KEY_TIME_SLOT, i); //Put Index of Time Slot We have selected
+//                        intent.putExtra(Common.KEY_STEP, 3);
+//                        localBroadcastManager.sendBroadcast(intent);
+//                    } else {
+//                        Intent intent = new Intent(Common.KEY_DISABLE_BUTTON_NEXT);
+//                        localBroadcastManager.sendBroadcast(intent);
+//                    }
+//                    //Code Added by Darshil
 
                 }
             });
