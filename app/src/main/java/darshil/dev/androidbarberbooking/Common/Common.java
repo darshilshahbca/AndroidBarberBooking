@@ -89,4 +89,8 @@ public class Common {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd_MM_yyyy");
         return simpleDateFormat.format(date);
     }
+
+    public static String formatShoppingItemName(String name) {
+       return name.length() > 13 ? new StringBuilder(name.substring(0,10)).append("...").toString() : name;
+    }
 }
