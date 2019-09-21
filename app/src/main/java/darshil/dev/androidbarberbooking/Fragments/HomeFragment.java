@@ -1,16 +1,21 @@
 package darshil.dev.androidbarberbooking.Fragments;
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.provider.CalendarContract;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,10 +27,12 @@ import android.widget.Toast;
 import com.facebook.accountkit.AccountKit;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.common.io.LineReader;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -44,19 +51,24 @@ import darshil.dev.androidbarberbooking.BookingActivity;
 import darshil.dev.androidbarberbooking.Common.Common;
 import darshil.dev.androidbarberbooking.Interface.IBannerLoadListener;
 import darshil.dev.androidbarberbooking.Interface.IBookingInfoLoadListener;
+import darshil.dev.androidbarberbooking.Interface.IBookingInformationChangeListener;
 import darshil.dev.androidbarberbooking.Interface.ILookbookLoadListener;
 import darshil.dev.androidbarberbooking.Model.Banner;
 import darshil.dev.androidbarberbooking.Model.BookingInformation;
 import darshil.dev.androidbarberbooking.R;
 import darshil.dev.androidbarberbooking.Service.PicassoImageLoadingService;
+import dmax.dialog.SpotsDialog;
+import io.paperdb.Paper;
 import ss.com.bannerslider.Slider;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class HomeFragment extends Fragment implements ILookbookLoadListener, IBannerLoadListener, IBookingInfoLoadListener {
+public class HomeFragment extends Fragment implements ILookbookLoadListener, IBannerLoadListener, IBookingInfoLoadListener, IBookingInformationChangeListener {
 
     private Unbinder unbinder;
+
+    AlertDialog dialog;
 
     @BindView(R.id.layout_user_information)
     LinearLayout layout_user_information;
@@ -81,6 +93,132 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
     @BindView(R.id.txt_time_remain)
     TextView txt_time_remain;
 
+    @OnClick(R.id.btn_change_booking)
+    void changeBooking()
+    {
+        changeBookingFromUser();
+    }
+
+    private void changeBookingFromUser() {
+        //Show Dialog
+        androidx.appcompat.app.AlertDialog.Builder confirmDialog = new androidx.appcompat.app.AlertDialog.Builder(getActivity())
+                .setCancelable(false)
+                .setTitle("Hey!")
+                .setMessage("Do you really want to change booking information?\nBecause We will delete your old booking information\nJust Confirm")
+                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                }).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                            deleteBookingFromBarber(true);
+                    }
+                });
+
+        confirmDialog.show();
+    }
+
+
+    @OnClick(R.id.btn_delete_booking)
+    void deleteBooking()
+    {
+        deleteBookingFromBarber(false);
+    }
+
+    private void deleteBookingFromBarber(boolean isChange) {
+
+        dialog.show();
+
+        //TO Delete Booking, First We need to delete from Barber Collection
+        //After that, Delete from User Booking collections
+        //And Final, Delete Event
+
+        //We need Load Common.currentBooking because We need some data from BookingInformation
+        if(Common.currentBooking != null)
+        {
+            //Get Booking Information
+            DocumentReference barberBookingInfo = FirebaseFirestore.getInstance()
+                    .collection("AllSalon")
+                    .document(Common.currentBooking.getCityBook())
+                    .collection("Branch")
+                    .document(Common.currentBooking.getSalonId())
+                    .collection("Barbers")
+                    .document(Common.currentBooking.getBarberId())
+                    .collection(Common.convertTimeSlotToStringKey(Common.currentBooking.getTimestamp()))
+                    .document(String.valueOf(Common.currentBooking.getSlot()));
+
+            barberBookingInfo.delete().addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    //After Delete from Barber done //We will start delete from User
+                    deleteBookingFromUser(isChange);
+                }
+            });
+
+
+        }
+        else
+        {
+            Toast.makeText(getContext(), "Current Booking must no be null", Toast.LENGTH_SHORT).show();
+        }
+
+
+    }
+
+    private void deleteBookingFromUser(boolean isChange) {
+        //First, We need to get Information from user Object
+        if(!TextUtils.isEmpty(Common.currentBookingId))
+        {
+            DocumentReference userBookingInfo = FirebaseFirestore.getInstance()
+                    .collection("User")
+                    .document(Common.currentUser.getPhoneNumber())
+                    .collection("Booking")
+                    .document(Common.currentBookingId);
+
+            //Delete
+            userBookingInfo.delete()
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    //After, Delete from User, Delete it from Calendar
+                    Paper.init(getActivity());
+                    Uri eventUri = Uri.parse(Paper.book().read(Common.EVENT_URI_CACHE).toString());
+                    getActivity().getContentResolver().delete(eventUri, null, null);
+
+                    Toast.makeText(getActivity(), "Success delete booking !", Toast.LENGTH_SHORT).show();
+
+                    //Refresh
+                    loadUserBooking();
+
+                    //Check if Change -> Call from change Button, we will finred interface
+                    if(isChange)
+                        iBookingInformationChangeListener.onBookingInformationChange();
+
+                    if(dialog.isShowing())
+                        dialog.dismiss();
+                }
+            });
+        }
+        else
+        {
+            if(dialog.isShowing())
+                dialog.dismiss();
+            Toast.makeText(getContext(), "Booking Information ID must not be empty", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     @OnClick(R.id.card_view_booking)
     void booking()
@@ -97,11 +235,13 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
     IBannerLoadListener iBannerLoadListener;
     ILookbookLoadListener iLookbookLoadListener;
     IBookingInfoLoadListener iBookingInfoLoadListener;
+    IBookingInformationChangeListener iBookingInformationChangeListener;
 
     public HomeFragment() {
 
         bannerRef = FirebaseFirestore.getInstance().collection("Banner");
         lookbookref = FirebaseFirestore.getInstance().collection("Lookbook");
+
 
     }
 
@@ -141,7 +281,7 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
                                 for(QueryDocumentSnapshot queryDocumentSnapshot: task.getResult())
                                 {
                                     BookingInformation bookingInformation = queryDocumentSnapshot.toObject(BookingInformation.class);
-                                    iBookingInfoLoadListener.onBookingInfoLoadSuccess(bookingInformation);
+                                    iBookingInfoLoadListener.onBookingInfoLoadSuccess(bookingInformation, queryDocumentSnapshot.getId());
                                     break; //Exit Loop
                                 }
                             }
@@ -164,11 +304,19 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        dialog = new SpotsDialog.Builder().setContext(getContext()).setCancelable(false).build();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_home, container, false);
         unbinder = ButterKnife.bind(this, view);
+
 
         //Init
         //Init
@@ -176,6 +324,8 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
         iBannerLoadListener = this;
         iLookbookLoadListener = this;
         iBookingInfoLoadListener = this;
+        iBookingInformationChangeListener = this;
+
 
         //Check is Logged
         if (AccountKit.getCurrentAccessToken() != null)
@@ -276,10 +426,16 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
     @Override
     public void onBookingInfoLoadEmpty() {
         card_booking_info.setVisibility(View.GONE);
+//        if(dialog.isShowing())
+//            dialog.dismiss();
     }
 
     @Override
-    public void onBookingInfoLoadSuccess(BookingInformation bookingInformation) {
+    public void onBookingInfoLoadSuccess(BookingInformation bookingInformation, String bookingId) {
+
+        Common.currentBooking = bookingInformation;
+        Common.currentBookingId = bookingId;
+
         txt_salon_address.setText(bookingInformation.getSalonAddress());
         txt_salon_barber.setText(bookingInformation.getBarberName());
         txt_time.setText(bookingInformation.getTime());
@@ -290,10 +446,19 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
         txt_time_remain.setText(dateRemain);
 
         card_booking_info.setVisibility(View.VISIBLE);
+
+        if(dialog.isShowing())
+            dialog.dismiss();
     }
 
     @Override
     public void onBookingInfoLoadFailed(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onBookingInformationChange() {
+        //Here, We will start Activity
+        startActivity(new Intent(getActivity(),BookingActivity.class));
     }
 }

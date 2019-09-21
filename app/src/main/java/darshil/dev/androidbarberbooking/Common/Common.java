@@ -1,9 +1,13 @@
 package darshil.dev.androidbarberbooking.Common;
 
+import com.google.firebase.Timestamp;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 import darshil.dev.androidbarberbooking.Model.Barber;
+import darshil.dev.androidbarberbooking.Model.BookingInformation;
 import darshil.dev.androidbarberbooking.Model.Salon;
 import darshil.dev.androidbarberbooking.Model.User;
 
@@ -19,6 +23,7 @@ public class Common {
     public static final String KEY_TIME_SLOT = "TIME_SLOT";
     public static final String KEY_CONFIRM_BOOKING = "CONFIRM_BOOKING" ;
     public static final String KEY_DISABLE_BUTTON_NEXT = "DISABLE_BUTTON_NEXT";
+    public static final String EVENT_URI_CACHE = "URI_EVENT_SAVE";
     public static String IS_LOGIN = "IsLogin";
     public static User currentUser;
     public static Salon currentSalon ;
@@ -28,6 +33,8 @@ public class Common {
     public static int currentTimeSlot = -1;
     public static Calendar bookingDate = Calendar.getInstance();
     public static SimpleDateFormat simpleFormatDate = new SimpleDateFormat("dd_MM_yyyy"); //ONly Use when need format Key
+    public static BookingInformation currentBooking;
+    public static String currentBookingId="";
 
     public static String convertTimeSlotToString(int slot) {
         switch (slot)
@@ -75,5 +82,11 @@ public class Common {
             default:
                 return "Closed";
         }
+    }
+
+    public static String convertTimeSlotToStringKey(Timestamp timestamp) {
+        Date date = timestamp.toDate();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd_MM_yyyy");
+        return simpleDateFormat.format(date);
     }
 }

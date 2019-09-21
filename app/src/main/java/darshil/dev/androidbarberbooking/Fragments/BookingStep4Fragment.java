@@ -47,6 +47,7 @@ import darshil.dev.androidbarberbooking.Common.Common;
 import darshil.dev.androidbarberbooking.Model.BookingInformation;
 import darshil.dev.androidbarberbooking.R;
 import dmax.dialog.SpotsDialog;
+import io.paperdb.Paper;
 
 public class BookingStep4Fragment extends Fragment {
 
@@ -103,9 +104,11 @@ public class BookingStep4Fragment extends Fragment {
         Timestamp timestamp = new Timestamp(bookingDateWithhourHouse.getTime());
 
 
-        //Create Booking Information
-        BookingInformation bookingInformation  = new BookingInformation();
 
+        //Create Booking Information
+        final BookingInformation bookingInformation  = new BookingInformation();
+
+        bookingInformation.setCityBook(Common.city);
         bookingInformation.setTimestamp(timestamp);
         bookingInformation.setDone(false); //Always False, because we will use this field to filter for display on user
         bookingInformation.setBarberId(Common.currentBarber.getBarberId());
@@ -160,9 +163,20 @@ public class BookingStep4Fragment extends Fragment {
                 .document(Common.currentUser.getPhoneNumber())
                 .collection("Booking");
 
+
         //Check if Document exist in this collection
-        userBooking.whereEqualTo("done", false) //If have any document with field done = false
-            .get()
+        //Get Current Date
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+
+        Timestamp toDayTimeStamp = new Timestamp(calendar.getTime());
+
+        userBooking.whereGreaterThanOrEqualTo("timestamp", toDayTimeStamp)
+                .whereEqualTo("done", false)
+                .limit(1) //Only take 1
+                .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -277,7 +291,10 @@ public class BookingStep4Fragment extends Fragment {
                 calendars = Uri.parse("content://calendar/events");
 
 
-            getActivity().getContentResolver().insert(calendars, event);
+            Uri uri_save = getActivity().getContentResolver().insert(calendars, event);
+            //Save to cache
+            Paper.init(getActivity());
+            Paper.book().write(Common.EVENT_URI_CACHE, uri_save.toString());
 
 
 

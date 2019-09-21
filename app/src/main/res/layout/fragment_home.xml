@@ -197,7 +197,7 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/card_booking_info"
             app:cardCornerRadius="8dp"
-            android:visibility="visible"
+            android:visibility="gone"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_width="match_parent"
@@ -302,13 +302,43 @@
 
                     <TextView
                         android:id="@+id/txt_time_remain"
-                        android:text=" Time"
+                        android:text="Time"
                         android:textStyle="bold"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
 
 
                 </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:weightSum="2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <Button
+                        android:layout_marginTop="4dp"
+                        android:id="@+id/btn_change_booking"
+                        android:layout_marginRight="4dp"
+                        android:text="CHANGE"
+                        android:layout_weight="1"
+                        android:background="@drawable/button_border_bg"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"/>
+
+                    <Button
+                        android:layout_marginTop="4dp"
+                        android:id="@+id/btn_delete_booking"
+                        android:layout_marginRight="4dp"
+                        android:text="DELETE"
+                        android:layout_weight="1"
+                        android:background="@drawable/button_border_bg"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"/>
+
+
+                </LinearLayout>
+
 
 
             </LinearLayout>
