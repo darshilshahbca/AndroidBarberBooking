@@ -1,7 +1,7 @@
 package darshil.dev.androidbarberbooking.Model;
 
 public class ShoppingItem {
-    private String name, image;
+    private String name, image, id;
     private Long price;
 
     public ShoppingItem() {
@@ -29,5 +29,13 @@ public class ShoppingItem {
 
     public void setPrice(Long price) {
         this.price = price;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }
