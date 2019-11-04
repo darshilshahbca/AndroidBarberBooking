@@ -3,8 +3,8 @@
     package="darshil.dev.androidbarberbooking">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_CALENDAR"/>
-    <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
 
     <application
         android:allowBackup="true"
@@ -13,7 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".BookingActivity"></activity>
+        <activity android:name=".CartActivity"></activity>
+        <activity android:name=".BookingActivity" />
         <activity android:name=".HomeActivity" />
 
         <meta-data

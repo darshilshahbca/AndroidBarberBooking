@@ -6,6 +6,6 @@
     <string name="shopping">Shopping Fragment</string>
     <string name="address_bullet">\u2022 Address:</string>
     <string name="time_bullet">\u2022 Time:</string>
-    <string name="stylish_bullet" >\u2022 Stylist:</string>
-    <string name="bullet" >\u2022 \u0020</string>
+    <string name="stylish_bullet">\u2022 Stylist:</string>
+    <string name="bullet">\u2022 \u0020</string>
 </resources>

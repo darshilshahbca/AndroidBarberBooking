@@ -49,6 +49,7 @@ import butterknife.Unbinder;
 import darshil.dev.androidbarberbooking.Adapter.HomeSlideAdapter;
 import darshil.dev.androidbarberbooking.Adapter.LookbookAdapter;
 import darshil.dev.androidbarberbooking.BookingActivity;
+import darshil.dev.androidbarberbooking.CartActivity;
 import darshil.dev.androidbarberbooking.Common.Common;
 import darshil.dev.androidbarberbooking.Database.CartDatabase;
 import darshil.dev.androidbarberbooking.Database.DatabaseUtils;
@@ -234,6 +235,12 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
     {
         startActivity(new Intent(getActivity(), BookingActivity.class));
 
+    }
+
+    @OnClick(R.id.card_view_cart)
+    void openCartActivity()
+    {
+        startActivity(new Intent(getActivity(), CartActivity.class));
     }
 
 
