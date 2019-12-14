@@ -8,12 +8,57 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:649616971456:android:0fda6d722d5dfac353bf25",
+        "android_client_info": {
+          "package_name": "com.example.androidbarberstaffapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "649616971456-ait3qjejudakf2adm253bmoifeaidul1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.androidbarberstaffapp",
+            "certificate_hash": "fe9ae58d2ab11203dc3ccce66d384912c38a4db6"
+          }
+        },
+        {
+          "client_id": "649616971456-gvhce7ruva46npppuis09tsvd3etouke.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwtJxMrcY37rn83RXdwl5g22c0ayydNzA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "649616971456-gvhce7ruva46npppuis09tsvd3etouke.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:649616971456:android:22d00f5d1cdf6f04",
         "android_client_info": {
           "package_name": "darshil.dev.androidbarberbooking"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "649616971456-tltn9fvi3cobujvn4pnii8qec1lbemhd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "darshil.dev.androidbarberbooking",
+            "certificate_hash": "fe9ae58d2ab11203dc3ccce66d384912c38a4db6"
+          }
+        },
         {
           "client_id": "649616971456-e8trridhfhuep9mjrnf2sp6o4cnmatse.apps.googleusercontent.com",
           "client_type": 1,

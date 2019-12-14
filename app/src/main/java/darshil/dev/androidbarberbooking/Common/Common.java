@@ -1,15 +1,54 @@
 package darshil.dev.androidbarberbooking.Common;
 
+import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.os.Build;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.RatingBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+
+import com.facebook.accountkit.AccessToken;
+import com.facebook.accountkit.Account;
+import com.facebook.accountkit.AccountKit;
+import com.facebook.accountkit.AccountKitCallback;
+import com.facebook.accountkit.AccountKitError;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
+import darshil.dev.androidbarberbooking.HomeActivity;
 import darshil.dev.androidbarberbooking.Model.Barber;
 import darshil.dev.androidbarberbooking.Model.BookingInformation;
+import darshil.dev.androidbarberbooking.Model.MyToken;
 import darshil.dev.androidbarberbooking.Model.Salon;
 import darshil.dev.androidbarberbooking.Model.User;
+import darshil.dev.androidbarberbooking.R;
+import io.paperdb.Paper;
 
 public class Common {
     public static final String KEY_ENALBE_BUTTON_NEXT = "ENABLE_BUTTON_NEXT";
@@ -24,6 +63,16 @@ public class Common {
     public static final String KEY_CONFIRM_BOOKING = "CONFIRM_BOOKING" ;
     public static final String KEY_DISABLE_BUTTON_NEXT = "DISABLE_BUTTON_NEXT";
     public static final String EVENT_URI_CACHE = "URI_EVENT_SAVE";
+    public static final String TITLE_KEY = "title";
+    public static final String CONTENT_KEY = "content";
+    public static final String LOGGED_KEY = "UserLogged";
+    public static final String RATING_INFORMATION_KEY = "RATING_INFORMATION";
+
+    public static final String RATING_STATE_KEY ="RATING_STATE" ;
+    public static final String RATING_SALON_ID = "RATING_SALON_ID";
+    public static final String RATING_SALON_NAME = "RATING_SALON_NAME";
+    public static final String RATING_BARBER_ID = "RATING_BARBER_ID";
+
     public static String IS_LOGIN = "IsLogin";
     public static User currentUser;
     public static Salon currentSalon ;
@@ -92,5 +141,220 @@ public class Common {
 
     public static String formatShoppingItemName(String name) {
        return name.length() > 13 ? new StringBuilder(name.substring(0,10)).append("...").toString() : name;
+    }
+
+    public static void showNotification(Context context, int noti_id, String title, String content, Intent intent) {
+        PendingIntent pendingIntent = null;
+
+        if(intent != null)
+        {
+            pendingIntent = PendingIntent.getActivity(context, noti_id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
+
+        String NOTIFICATION_CHANNEL_ID = "barber_client_app";
+        NotificationManager notificationManager = (NotificationManager)context.getSystemService(context.NOTIFICATION_SERVICE);
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        {
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
+                    "My Notification", NotificationManager.IMPORTANCE_DEFAULT);
+
+            notificationChannel.setDescription("Staff App");
+            notificationChannel.enableLights(true);
+            notificationChannel.enableVibration(true);
+
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+
+        NotificationCompat.Builder builder= new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID);
+
+        builder.setContentTitle(title)
+                .setContentText(content)
+                .setAutoCancel(false)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher));
+
+        if(pendingIntent != null)
+        {
+            builder.setContentIntent(pendingIntent);
+
+
+        }
+        Notification notification = builder.build();
+
+        notificationManager.notify(noti_id, notification);
+
+    }
+
+    public static void showRatingDialog(Context context, String stateName, String salonId, String salonName,
+                                        String barberId) {
+        //First We need document reference of Barber
+        DocumentReference barberNeedRateRef = FirebaseFirestore.getInstance()
+                .collection("AllSalon")
+                .document(stateName)
+                .collection("Branch")
+                .document(salonId)
+                .collection("Barbers")
+                .document(barberId);
+
+        barberNeedRateRef.get()
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(context, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful())
+                {
+                    Barber barberRate = task.getResult().toObject(Barber.class);
+                    barberRate.setBarberId(task.getResult().getId());
+
+
+                    //Create View for Dialog
+                    View view = LayoutInflater.from(context)
+                            .inflate(R.layout.layout_rating_dialog, null  );
+
+                    //Widget
+                    TextView txt_salon_name = (TextView)view.findViewById(R.id.txt_salon_name);
+                    TextView txt_barber_name = (TextView)view.findViewById(R.id.txt_barber_name);
+                    RatingBar ratingBar = (RatingBar)view.findViewById(R.id.rating);
+
+                    //Set Info
+                    txt_barber_name.setText(barberRate.getName());
+                    txt_salon_name.setText(salonName);
+
+                    //Create Dialog
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                            .setView(view)
+                            .setCancelable(false)
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    //IF Select OK, We will update Rating Information to FireStore
+                                    Double original_rating = barberRate.getRating();
+                                    Long ratingTimes = barberRate.getRatingTimes();
+                                    float userRating = ratingBar.getRating();
+
+                                    Double finalRating = (original_rating + userRating);
+
+                                    //Update Barber
+                                    Map<String, Object> data_update = new HashMap<>();
+                                    data_update.put("rating", finalRating);
+                                    data_update.put("ratingTimes",++ratingTimes);
+
+                                    barberNeedRateRef.update(data_update)
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                }
+                                            }).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if(task.isSuccessful()) {
+                                                Toast.makeText(context, "Thank you for Rating!", Toast.LENGTH_SHORT).show();
+
+                                                //Remove Key
+                                                Paper.init(context);
+                                                Paper.book().delete(Common.RATING_INFORMATION_KEY);
+                                            }
+                                        }
+                                    });
+                                }
+                            })
+                            .setNegativeButton("SKIP", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    //if Select Skip, We just dismiss dialog
+                                    dialog.dismiss();
+                                }
+                            })
+                            .setNeutralButton("NEVER", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    //If select Never, We will delete Key
+                                    Paper.init(context);
+                                    Paper.book().delete(Common.RATING_INFORMATION_KEY);
+                                }
+                            });
+
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+
+
+                }
+            }
+        });
+    }
+
+
+    public enum TOKEN_TYPE{
+        CLIENT,
+        BARBER,
+        MANAGER
+    }
+
+    public static void updateToken( Context context,  String token) {
+
+
+
+        AccessToken accessToken = AccountKit.getCurrentAccessToken();
+
+        if(accessToken!=null)
+        {
+            AccountKit.getCurrentAccount(new AccountKitCallback<Account>() {
+                @Override
+                public void onSuccess(Account account) {
+                    MyToken myToken = new MyToken();
+                    myToken.setToken(token);
+                    myToken.setTokenType(TOKEN_TYPE.CLIENT);
+                    myToken.setUserPhone(account.getPhoneNumber().toString());
+
+                    FirebaseFirestore.getInstance()
+                            .collection("Tokens")
+                            .document(account.getPhoneNumber().toString())
+                            .set(myToken)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+
+                                }
+                            });
+
+                }
+
+                @Override
+                public void onError(AccountKitError accountKitError) {
+
+                }
+            });
+        } else{
+            Paper.init(context);
+            String user = Paper.book().read(Common.LOGGED_KEY);
+
+            if(user!=null)
+            {
+                if(!TextUtils.isEmpty(user))
+                {
+                    MyToken myToken = new MyToken();
+                    myToken.setToken(token);
+                    myToken.setTokenType(TOKEN_TYPE.CLIENT);
+                    myToken.setUserPhone(user);
+
+                    FirebaseFirestore.getInstance()
+                            .collection("Tokens")
+                            .document(user)
+                            .set(myToken)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+
+                                }
+                            });
+                }
+            }
+        }
     }
 }

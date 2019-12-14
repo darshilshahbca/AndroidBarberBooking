@@ -33,7 +33,10 @@ import com.google.common.io.LineReader;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.nex3z.notificationbadge.NotificationBadge;
@@ -204,8 +207,16 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
                 public void onSuccess(Void aVoid) {
                     //After, Delete from User, Delete it from Calendar
                     Paper.init(getActivity());
-                    Uri eventUri = Uri.parse(Paper.book().read(Common.EVENT_URI_CACHE).toString());
-                    getActivity().getContentResolver().delete(eventUri, null, null);
+                    if(Paper.book().read(Common.EVENT_URI_CACHE) != null)
+                    {
+                        String eventString = Paper.book().read(Common.EVENT_URI_CACHE).toString();
+                        Uri eventUri = null;
+                        if(eventString!=null && !TextUtils.isEmpty(eventString))
+                            eventUri = Uri.parse(eventString);
+
+                        if(eventUri!=null)
+                            getActivity().getContentResolver().delete(eventUri, null, null);
+                    }
 
                     Toast.makeText(getActivity(), "Success delete booking !", Toast.LENGTH_SHORT).show();
 
@@ -252,6 +263,10 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
     ILookbookLoadListener iLookbookLoadListener;
     IBookingInfoLoadListener iBookingInfoLoadListener;
     IBookingInformationChangeListener iBookingInformationChangeListener;
+
+    ListenerRegistration userBookingListener = null;
+    EventListener<QuerySnapshot> userBookingEvent = null;
+
 
     public HomeFragment() {
 
@@ -316,7 +331,17 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
             }
         });
 
-
+        //Here, after userBooking has been assign data(collection)
+        //We will make realtime listener here
+        if(userBookingEvent != null) //If UserBookingEvent already init
+        {
+          if(userBookingListener == null) //Only, if UserBoookingListner == null
+          {
+              //That mean we just add 1 time
+              userBookingListener =  userBooking
+                      .addSnapshotListener(userBookingEvent);
+          }
+        }
 
     }
 
@@ -352,8 +377,10 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
             setUserInformation();
             loadBanner();
             loadLookBook();
+            initRealtimeUserBooking(); //Need to declare before Load User Booking
             loadUserBooking();
             countCartItem();
+
         }
         /*//Added by Darshil
         else{
@@ -363,6 +390,20 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
         //Added by Darshil*/
 
         return view;
+    }
+
+    private void initRealtimeUserBooking() {
+        //Follow This STeps Carefully
+        if(userBookingEvent == null) //WE only Init event when null
+        {
+            userBookingEvent = new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                    //In this Event, When Fired, We will call loadUserBooking again to reload all booking Information
+                    loadUserBooking();
+                }
+            };
+        }
     }
 
     private void countCartItem() {
@@ -489,5 +530,14 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
     @Override
     public void onCartItemCountSuccess(int count) {
         notificationBadge.setText(String.valueOf(count));
+    }
+
+    @Override
+    public void onDestroy() {
+        if(userBookingListener != null)
+        {
+            userBookingListener.remove();
+        }
+        super.onDestroy();
     }
 }

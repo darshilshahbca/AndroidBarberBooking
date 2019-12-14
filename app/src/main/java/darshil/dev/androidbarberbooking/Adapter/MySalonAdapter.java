@@ -55,13 +55,13 @@ public class MySalonAdapter extends RecyclerView.Adapter<MySalonAdapter.MyViewHo
         myViewHolder.setiRecyclerItemSelectedListener(new IRecyclerItemSelectedListener() {
             @Override
             public void onItemSelectedListener(View view, int pos) {
-                //Set White Background for all card which are not selected
-                for(CardView cardView : cardViewList)
-                    cardView.setCardBackgroundColor(context.getResources().getColor(android.R.color.white));
+                    //Set White Background for all card which are not selected
+                    for(CardView cardView : cardViewList)
+                        cardView.setCardBackgroundColor(context.getResources().getColor(android.R.color.white));
 
                 //Set Background for selected item
                 myViewHolder.card_salon.setCardBackgroundColor(context.getResources()
-                          .getColor(android.R.color.holo_orange_dark));
+                        .getColor(android.R.color.holo_orange_dark));
 
                 //send Broadcast to tell Booking Activity enable button Next
                 Intent intent = new Intent(Common.KEY_ENALBE_BUTTON_NEXT);

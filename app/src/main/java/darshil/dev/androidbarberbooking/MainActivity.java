@@ -1,5 +1,6 @@
 package darshil.dev.androidbarberbooking;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -22,6 +23,12 @@ import com.facebook.accountkit.AccountKitLoginResult;
 import com.facebook.accountkit.ui.AccountKitActivity;
 import com.facebook.accountkit.ui.AccountKitConfiguration;
 import com.facebook.accountkit.ui.LoginType;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -89,19 +96,35 @@ public class MainActivity extends AppCompatActivity {
             }
             else
             {
-                //Intent object that provides runtime binding between separate components, such as two activities.
-                //Intent Starts Another Activity
-                //Activity Class is a Subclass of Context
-                Intent intent =  new Intent (this, HomeActivity.class);
+                //Get Token
+                FirebaseInstanceId.getInstance()
+                        .getInstanceId()
+                        .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                                if(task.isSuccessful()){
+                                    Common.updateToken(getBaseContext(), task.getResult().getToken());
 
-                //Intent Can Carry data type as Key-Value pairs called EXTRAS
-                intent.putExtra(Common.IS_LOGIN, true);
+                                    Log.d("DarshilToken", task.getResult().getToken());
 
-                //Starts instance of activity specified by theIntent
-                startActivity(intent);
+                                    Intent intent =  new Intent (MainActivity.this, HomeActivity.class);
+                                    intent.putExtra(Common.IS_LOGIN, true);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
 
-
-                finish();
+                                Intent intent =  new Intent (MainActivity.this, HomeActivity.class);
+                                intent.putExtra(Common.IS_LOGIN, true);
+                                startActivity(intent);
+                                finish();
+                            }
+                        });
             }
 
         }
@@ -123,10 +146,37 @@ public class MainActivity extends AppCompatActivity {
                 AccessToken accessToken = AccountKit.getCurrentAccessToken();
                 if(accessToken != null) //If Already Logged
                 {
-                    Intent intent =  new Intent (MainActivity.this, HomeActivity.class);
-                    intent.putExtra(Common.IS_LOGIN, true);
-                    startActivity(intent);
-                    finish();
+                    //Get Token
+                    FirebaseInstanceId.getInstance()
+                            .getInstanceId()
+                            .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                                  if(task.isSuccessful()){
+                                      Common.updateToken(getBaseContext(), task.getResult().getToken());
+
+                                      Log.d("DarshilToken", task.getResult().getToken());
+
+                                      Intent intent =  new Intent (MainActivity.this, HomeActivity.class);
+                                      intent.putExtra(Common.IS_LOGIN, true);
+                                      startActivity(intent);
+                                      finish();
+                                  }
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                                    Intent intent =  new Intent (MainActivity.this, HomeActivity.class);
+                                    intent.putExtra(Common.IS_LOGIN, true);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            });
+
+
 
                 }else{
                     setContentView(R.layout.activity_main);
