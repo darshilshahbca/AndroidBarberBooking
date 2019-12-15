@@ -24,6 +24,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.shuhart.stepview.StepView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,11 +38,15 @@ import darshil.dev.androidbarberbooking.Adapter.MyViewPagerAdapter;
 import darshil.dev.androidbarberbooking.Common.Common;
 import darshil.dev.androidbarberbooking.Common.NonSwipeViewPager;
 import darshil.dev.androidbarberbooking.Model.Barber;
+import darshil.dev.androidbarberbooking.Model.EventBus.BarberDoneEvent;
+import darshil.dev.androidbarberbooking.Model.EventBus.ConfirmBookingEvent;
+import darshil.dev.androidbarberbooking.Model.EventBus.DisplayTimeSlotEvent;
+import darshil.dev.androidbarberbooking.Model.EventBus.EnableNextButton;
 import dmax.dialog.SpotsDialog;
 
 public class BookingActivity extends AppCompatActivity {
 
-    LocalBroadcastManager localBroadcastManager;
+//    LocalBroadcastManager localBroadcastManager;
     AlertDialog dialog;
     CollectionReference barberRef;
 
@@ -104,15 +112,19 @@ public class BookingActivity extends AppCompatActivity {
 
     private void confirmBooking() {
         //Send Broadcast to Fragment four
-        Intent intent = new Intent(Common.KEY_CONFIRM_BOOKING);
-        localBroadcastManager.sendBroadcast(intent);
+//        Intent intent = new Intent(Common.KEY_CONFIRM_BOOKING);
+//        localBroadcastManager.sendBroadcast(intent);
+
+        EventBus.getDefault().postSticky(new ConfirmBookingEvent(true));
 
     }
 
     private void loadTimeSlotOfBarber(String barberId) {
         //Send LocalBroadcast to Segment Step 3
-        Intent intent = new Intent(Common.KEY_DISPLAY_TIME_SLOT);
-        localBroadcastManager.sendBroadcast(intent);
+//        Intent intent = new Intent(Common.KEY_DISPLAY_TIME_SLOT);
+//        localBroadcastManager.sendBroadcast(intent);
+
+        EventBus.getDefault().postSticky(new DisplayTimeSlotEvent(true));
 
     }
 
@@ -144,9 +156,11 @@ public class BookingActivity extends AppCompatActivity {
                         }
 
                         //Send Broadcast to BookingStep2Fragment to Load Recycler
-                        Intent intent = new Intent(Common.KEY_BARBER_LOAD_DONE);
-                        intent.putParcelableArrayListExtra(Common.KEY_BARBER_LOAD_DONE, barbers);
-                        localBroadcastManager.sendBroadcast(intent);
+//                        Intent intent = new Intent(Common.KEY_BARBER_LOAD_DONE);
+//                        intent.putParcelableArrayListExtra(Common.KEY_BARBER_LOAD_DONE, barbers);
+//                        localBroadcastManager.sendBroadcast(intent);
+
+                        EventBus.getDefault().postSticky(new BarberDoneEvent(barbers));
 
                         dialog.dismiss();
 
@@ -164,25 +178,43 @@ public class BookingActivity extends AppCompatActivity {
 
     }
 
-    //BroadCast Receiver
-    private BroadcastReceiver buttonNextReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
+//    //BroadCast Receiver
+//    private BroadcastReceiver buttonNextReceiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//
+//            int step = intent.getIntExtra(Common.KEY_STEP, '0');
+//
+//            if(step == 1)
+//                Common.currentSalon = intent.getParcelableExtra(Common.KEY_SALON_STORE);
+//            else if(step == 2)
+//                Common.currentBarber = intent.getParcelableExtra(Common.KEY_BARBER_SELECTED);
+//            else if(step == 3)
+//                Common.currentTimeSlot = intent.getIntExtra(Common.KEY_TIME_SLOT, -1);
+//
+//
+//            btn_next_step.setEnabled(true);
+//            setColorButton();
+//        }
+//    };
 
-            int step = intent.getIntExtra(Common.KEY_STEP, '0');
+    //Event Bus Convert
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void buttonNextReceiver(EnableNextButton event)
+    {
+        int step = event.getStep();
 
-            if(step == 1)
-                Common.currentSalon = intent.getParcelableExtra(Common.KEY_SALON_STORE);
-            else if(step == 2)
-                Common.currentBarber = intent.getParcelableExtra(Common.KEY_BARBER_SELECTED);
-            else if(step == 3)
-                Common.currentTimeSlot = intent.getIntExtra(Common.KEY_TIME_SLOT, -1);
+        if(step == 1)
+            Common.currentSalon = event.getSalon();
+        else if(step == 2)
+            Common.currentBarber = event.getBarber();
+        else if(step == 3)
+            Common.currentTimeSlot = event.getTimeSlot();
 
 
-            btn_next_step.setEnabled(true);
-            setColorButton();
-        }
-    };
+        btn_next_step.setEnabled(true);
+        setColorButton();
+    }
 
 //    //Code Added - Darshil
 //    //BroadCast Receiver
@@ -197,12 +229,12 @@ public class BookingActivity extends AppCompatActivity {
 //    //Code Added - Darshil
 
 
-    @Override
-    protected void onDestroy() {
-        localBroadcastManager.unregisterReceiver(buttonNextReceiver);
-//        localBroadcastManager.unregisterReceiver(disableNextReceiver);
-        super.onDestroy();
-    }
+//    @Override
+//    protected void onDestroy() {
+//        localBroadcastManager.unregisterReceiver(buttonNextReceiver);
+////        localBroadcastManager.unregisterReceiver(disableNextReceiver);
+//        super.onDestroy();
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -212,8 +244,8 @@ public class BookingActivity extends AppCompatActivity {
 
         dialog = new SpotsDialog.Builder().setContext(this).setCancelable(false).build();
 
-        localBroadcastManager = LocalBroadcastManager.getInstance(this);
-        localBroadcastManager.registerReceiver(buttonNextReceiver, new IntentFilter(Common.KEY_ENALBE_BUTTON_NEXT));
+//        localBroadcastManager = LocalBroadcastManager.getInstance(this);
+//        localBroadcastManager.registerReceiver(buttonNextReceiver, new IntentFilter(Common.KEY_ENALBE_BUTTON_NEXT));
 
 //        //Code Added - Darshil
 //        //Code Added to Disable (in case Enable when SLOT is FULL)
@@ -285,4 +317,21 @@ public class BookingActivity extends AppCompatActivity {
         stepList.add("Confirm");
         stepView.setSteps(stepList);
     }
+
+    //================================================================
+    //EVENT BUS START
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    //================================================================
 }

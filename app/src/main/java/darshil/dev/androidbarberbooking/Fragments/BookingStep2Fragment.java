@@ -16,6 +16,10 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 
 import butterknife.BindView;
@@ -25,26 +29,51 @@ import darshil.dev.androidbarberbooking.Adapter.MyBarberAdapter;
 import darshil.dev.androidbarberbooking.Common.Common;
 import darshil.dev.androidbarberbooking.Common.SpacesItemDecoration;
 import darshil.dev.androidbarberbooking.Model.Barber;
+import darshil.dev.androidbarberbooking.Model.EventBus.BarberDoneEvent;
 import darshil.dev.androidbarberbooking.R;
 
 public class BookingStep2Fragment extends Fragment {
 
     Unbinder unbinder;
-    LocalBroadcastManager localBroadcastManager;
+//    LocalBroadcastManager localBroadcastManager;
 
     @BindView(R.id.recycler_barber)
     RecyclerView recycler_barber;
 
-    private BroadcastReceiver barberDoneReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            ArrayList<Barber> barberArrayList = intent.getParcelableArrayListExtra(Common.KEY_BARBER_LOAD_DONE);
+//    private BroadcastReceiver barberDoneReceiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            ArrayList<Barber> barberArrayList = intent.getParcelableArrayListExtra(Common.KEY_BARBER_LOAD_DONE);
+//
+//            //Create Adapter
+//            MyBarberAdapter adapter = new MyBarberAdapter(getContext(), barberArrayList);
+//            recycler_barber.setAdapter(adapter);
+//        }
+//    };
 
-            //Create Adapter
-            MyBarberAdapter adapter = new MyBarberAdapter(getContext(), barberArrayList);
-            recycler_barber.setAdapter(adapter);
-        }
-    };
+    //================================================================
+    //EVENT BUS START
+
+    @Override
+    public void onStart() {
+         super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void setBarberAdapter(BarberDoneEvent event)
+    {
+        MyBarberAdapter adapter = new MyBarberAdapter(getContext(), event.getBarberList());
+        recycler_barber.setAdapter(adapter);
+    }
+
+    //================================================================
 
     static BookingStep2Fragment instance;
 
@@ -58,15 +87,17 @@ public class BookingStep2Fragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        localBroadcastManager = LocalBroadcastManager.getInstance(getContext());
-        localBroadcastManager.registerReceiver(barberDoneReceiver, new IntentFilter(Common.KEY_BARBER_LOAD_DONE));
+//        localBroadcastManager = LocalBroadcastManager.getInstance(getContext());
+//        localBroadcastManager.registerReceiver(barberDoneReceiver, new IntentFilter(Common.KEY_BARBER_LOAD_DONE));
+
+
     }
 
-    @Override
-    public void onDestroy() {
-        localBroadcastManager.unregisterReceiver(barberDoneReceiver);
-        super.onDestroy();
-    }
+//    @Override
+//    public void onDestroy() {
+//        localBroadcastManager.unregisterReceiver(barberDoneReceiver);
+//        super.onDestroy();
+//    }
 
     @Nullable
     @Override

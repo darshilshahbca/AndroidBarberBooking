@@ -12,6 +12,7 @@ import androidx.cardview.widget.CardView;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.greenrobot.eventbus.EventBus;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.List;
 import darshil.dev.androidbarberbooking.Common.Common;
 import darshil.dev.androidbarberbooking.Interface.IRecyclerItemSelectedListener;
 import darshil.dev.androidbarberbooking.Model.Barber;
+import darshil.dev.androidbarberbooking.Model.EventBus.EnableNextButton;
 import darshil.dev.androidbarberbooking.Model.TimeSlot;
 import darshil.dev.androidbarberbooking.R;
 
@@ -28,20 +30,20 @@ public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.My
     Context context;
     List<TimeSlot> timeSlotList;
     List<CardView> cardViewList;
-    LocalBroadcastManager localBroadcastManager;
+//    LocalBroadcastManager localBroadcastManager;
 
     public MyTimeSlotAdapter(Context context) {
         this.context = context;
         this.timeSlotList = new ArrayList<>();
         cardViewList =  new ArrayList<>();
-        localBroadcastManager = LocalBroadcastManager.getInstance(context);
+//        localBroadcastManager = LocalBroadcastManager.getInstance(context);
     }
 
     public MyTimeSlotAdapter(Context context, List<TimeSlot> timeSlotList) {
         this.context = context;
         this.timeSlotList = timeSlotList;
         cardViewList =  new ArrayList<>();
-        localBroadcastManager = LocalBroadcastManager.getInstance(context);
+//        localBroadcastManager = LocalBroadcastManager.getInstance(context);
     }
 
     @NonNull
@@ -103,11 +105,17 @@ public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.My
                     //Our selected card will be change color
                     myViewHolder.card_time_slot.setCardBackgroundColor(context.getResources().getColor(android.R.color.holo_orange_dark));
 //
-                    //After that, Send Broadcast to enable button Next
-                    Intent intent = new Intent(Common.KEY_ENALBE_BUTTON_NEXT);
-                    intent.putExtra(Common.KEY_TIME_SLOT, i); //Put Index of Time Slot We have selected
-                    intent.putExtra(Common.KEY_STEP, 3);
-                    localBroadcastManager.sendBroadcast(intent);
+//                    //After that, Send Broadcast to enable button Next
+//                    Intent intent = new Intent(Common.KEY_ENALBE_BUTTON_NEXT);
+//                    intent.putExtra(Common.KEY_TIME_SLOT, i); //Put Index of Time Slot We have selected
+//                    intent.putExtra(Common.KEY_STEP, 3);
+//                    localBroadcastManager.sendBroadcast(intent);
+
+                    //==================================================
+                    //Event Bus
+                    EventBus.getDefault().postSticky(new EnableNextButton(3,i));
+
+                    //=================================================
 
 //                    //Code Added by Dashil
 //                    if(myViewHolder.card_time_slot.getTag() == null) {
