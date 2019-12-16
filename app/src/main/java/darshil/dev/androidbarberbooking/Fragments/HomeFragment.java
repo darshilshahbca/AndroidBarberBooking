@@ -56,6 +56,7 @@ import darshil.dev.androidbarberbooking.CartActivity;
 import darshil.dev.androidbarberbooking.Common.Common;
 import darshil.dev.androidbarberbooking.Database.CartDatabase;
 import darshil.dev.androidbarberbooking.Database.DatabaseUtils;
+import darshil.dev.androidbarberbooking.HistoryActivity;
 import darshil.dev.androidbarberbooking.Interface.IBannerLoadListener;
 import darshil.dev.androidbarberbooking.Interface.IBookingInfoLoadListener;
 import darshil.dev.androidbarberbooking.Interface.IBookingInformationChangeListener;
@@ -246,6 +247,12 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
     {
         startActivity(new Intent(getActivity(), BookingActivity.class));
 
+    }
+
+    @OnClick(R.id.card_view_history)
+    void openHistoryActivity()
+    {
+        startActivity(new Intent(getActivity(), HistoryActivity.class));
     }
 
     @OnClick(R.id.card_view_cart)

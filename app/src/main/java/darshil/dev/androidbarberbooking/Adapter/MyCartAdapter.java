@@ -64,6 +64,13 @@ public class MyCartAdapter extends RecyclerView.Adapter<MyCartAdapter.MyViewHold
                                 .setProductQuantity(cartItemList.get(pos).getProductQuantity() - 1);
 
                         DatabaseUtils.updateCart(cartDatabase, cartItemList.get(pos));
+
+                        myViewHolder.txt_quantity.setText(new StringBuilder(String.valueOf(cartItemList.get(i).getProductQuantity())));
+                    }
+                    else if(cartItemList.get(pos).getProductQuantity() == 0){
+                        DatabaseUtils.deleteCart(cartDatabase, cartItemList.get(pos));
+                        cartItemList.remove(pos);
+                        notifyItemRemoved(pos);
                     }
 
                 }
@@ -74,9 +81,11 @@ public class MyCartAdapter extends RecyclerView.Adapter<MyCartAdapter.MyViewHold
                                 .setProductQuantity(cartItemList.get(pos).getProductQuantity() + 1);
 
                     DatabaseUtils.updateCart(cartDatabase, cartItemList.get(pos));
+
+                    myViewHolder.txt_quantity.setText(new StringBuilder(String.valueOf(cartItemList.get(i).getProductQuantity())));
                 }
 
-                myViewHolder.txt_quantity.setText(new StringBuilder(String.valueOf(cartItemList.get(i).getProductQuantity())));
+
                 iCartItemUpdateListener.onCartItemUpdateSuccess();
 
             }

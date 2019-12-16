@@ -59,6 +59,9 @@ public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.My
         myViewHolder.txt_time_slot.setText(new StringBuilder(Common.convertTimeSlotToString(i)).toString());
         if(timeSlotList.size() == 0 ) //If all position is available, just show List
         {
+            //If all time slot is empty, all card is enable
+            myViewHolder.card_time_slot.setEnabled(true);
+
             myViewHolder.card_time_slot.setCardBackgroundColor(context.getResources().getColor(android.R.color.white));
             myViewHolder.txt_time_slot_description.setText("Available");
             myViewHolder.txt_time_slot_description.setTextColor(context.getResources().getColor(android.R.color.black));
@@ -75,6 +78,9 @@ public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.My
                 {
                     //We will set tag for all time slot is full
                     //So, Base on TAG, We can set all remain card background without change full time slot
+
+                    myViewHolder.card_time_slot.setEnabled(false);
+
                     myViewHolder.card_time_slot.setTag(Common.DISABLE_TAG);
                     myViewHolder.card_time_slot.setCardBackgroundColor(context.getResources().getColor(android.R.color.darker_gray));
 
