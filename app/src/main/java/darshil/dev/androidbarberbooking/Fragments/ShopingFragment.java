@@ -48,6 +48,8 @@ public class ShopingFragment extends Fragment implements IShoppingDataLoadListen
 
     Unbinder unbinder;
 
+    MyShoppingItemAdapter adapter;
+
     @BindView(R.id.chip_group)
     ChipGroup chipGroup;
     @BindView(R.id.chip_wax)
@@ -171,12 +173,19 @@ public class ShopingFragment extends Fragment implements IShoppingDataLoadListen
 
     @Override
     public void onShoppingDataLoadSuccess(List<ShoppingItem> shoppingItemList) {
-        MyShoppingItemAdapter adapter = new MyShoppingItemAdapter(getContext(), shoppingItemList);
+        adapter = new MyShoppingItemAdapter(getContext(), shoppingItemList);
         recycler_items.setAdapter(adapter);
     }
 
     @Override
     public void onShoppingDataLoadFailed(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDestroy() {
+        if(adapter!=null)
+            adapter.onDestroy();
+        super.onDestroy();
     }
 }

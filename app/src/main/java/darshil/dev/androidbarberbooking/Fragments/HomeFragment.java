@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.provider.CalendarContract;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -29,7 +28,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.common.io.LineReader;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -54,8 +52,9 @@ import darshil.dev.androidbarberbooking.Adapter.LookbookAdapter;
 import darshil.dev.androidbarberbooking.BookingActivity;
 import darshil.dev.androidbarberbooking.CartActivity;
 import darshil.dev.androidbarberbooking.Common.Common;
+import darshil.dev.androidbarberbooking.Database.CartDataSource;
 import darshil.dev.androidbarberbooking.Database.CartDatabase;
-import darshil.dev.androidbarberbooking.Database.DatabaseUtils;
+import darshil.dev.androidbarberbooking.Database.LocalCartDataSource;
 import darshil.dev.androidbarberbooking.HistoryActivity;
 import darshil.dev.androidbarberbooking.Interface.IBannerLoadListener;
 import darshil.dev.androidbarberbooking.Interface.IBookingInfoLoadListener;
@@ -68,18 +67,22 @@ import darshil.dev.androidbarberbooking.R;
 import darshil.dev.androidbarberbooking.Service.PicassoImageLoadingService;
 import dmax.dialog.SpotsDialog;
 import io.paperdb.Paper;
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import ss.com.bannerslider.Slider;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class HomeFragment extends Fragment implements ILookbookLoadListener, IBannerLoadListener, IBookingInfoLoadListener, IBookingInformationChangeListener, ICountItemInCartListener {
+public class HomeFragment extends Fragment implements ILookbookLoadListener, IBannerLoadListener, IBookingInfoLoadListener, IBookingInformationChangeListener {
 
     private Unbinder unbinder;
 
-    AlertDialog dialog;
+    CartDataSource cartDataSource;
 
-    CartDatabase cartDatabase;
+    AlertDialog dialog;
 
     @BindView(R.id.notification_badge)
     NotificationBadge notificationBadge;
@@ -366,7 +369,10 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
         View view =  inflater.inflate(R.layout.fragment_home, container, false);
         unbinder = ButterKnife.bind(this, view);
 
-        cartDatabase = CartDatabase.getInstance(getContext());
+
+
+        cartDataSource = new LocalCartDataSource(CartDatabase.getInstance(getContext()).cartDAO());
+
 
 
         //Init
@@ -414,7 +420,26 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
     }
 
     private void countCartItem() {
-        DatabaseUtils.countItemInCart(cartDatabase, this);
+//        DatabaseUtils.countItemInCart(cartDatabase, this);\
+        cartDataSource.countItemInCart(Common.currentUser.getPhoneNumber())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<Integer>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(Integer integer) {
+                        notificationBadge.setText(String.valueOf(integer));
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Toast.makeText(getContext(), ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void loadLookBook() {
@@ -534,10 +559,6 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
         startActivity(new Intent(getActivity(),BookingActivity.class));
     }
 
-    @Override
-    public void onCartItemCountSuccess(int count) {
-        notificationBadge.setText(String.valueOf(count));
-    }
 
     @Override
     public void onDestroy() {
