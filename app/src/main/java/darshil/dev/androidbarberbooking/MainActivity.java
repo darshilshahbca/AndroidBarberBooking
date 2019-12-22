@@ -16,16 +16,13 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.accountkit.AccessToken;
-import com.facebook.accountkit.Account;
-import com.facebook.accountkit.AccountKit;
-import com.facebook.accountkit.AccountKitLoginResult;
-import com.facebook.accountkit.ui.AccountKitActivity;
-import com.facebook.accountkit.ui.AccountKitConfiguration;
-import com.facebook.accountkit.ui.LoginType;
+import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
@@ -38,8 +35,11 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.karumi.dexter.listener.single.PermissionListener;
 
+import java.lang.reflect.Array;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
@@ -51,6 +51,10 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int APP_REQUEST_CODE = 7117; //Any Number
 
+    private List<AuthUI.IdpConfig> providers;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseAuth.AuthStateListener authStateListener;
+
     @BindView(R.id.btn_login)
     Button btn_login;
     @BindView(R.id.txt_skip)
@@ -59,15 +63,9 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.btn_login)
     void loginUser()
     {
-        final Intent intent = new Intent(this, AccountKitActivity.class );
-        AccountKitConfiguration.AccountKitConfigurationBuilder configurationBuilder =
-                new AccountKitConfiguration.AccountKitConfigurationBuilder(LoginType.PHONE,
-                        AccountKitActivity.ResponseType.TOKEN);
-
-        intent.putExtra(AccountKitActivity.ACCOUNT_KIT_ACTIVITY_CONFIGURATION,
-                configurationBuilder.build());
-
-        startActivityForResult(intent, APP_REQUEST_CODE);
+        startActivityForResult(AuthUI.getInstance()
+        .createSignInIntentBuilder()
+        .setAvailableProviders(providers).build(), APP_REQUEST_CODE);
     }
 
     @OnClick(R.id.txt_skip)
@@ -79,52 +77,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        firebaseAuth.addAuthStateListener(authStateListener);
+    }
+
+    @Override
+    protected void onStop() {
+        if(authStateListener!=null)
+        {
+            firebaseAuth.removeAuthStateListener(authStateListener);
+        }
+        super.onStop();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == APP_REQUEST_CODE)
         {
-            AccountKitLoginResult loginResult = data.getParcelableExtra(AccountKitLoginResult.RESULT_KEY);
-            if(loginResult.getError() != null)
+            IdpResponse response = IdpResponse.fromResultIntent(data);
+            if(resultCode == RESULT_OK)
             {
-                Toast.makeText(this, ""+loginResult.getError().getErrorType().getMessage(), Toast.LENGTH_SHORT).show();
+               FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-            }
-            else if (loginResult.wasCancelled())
-            {
-                Toast.makeText(this, "Login Cancelled", Toast.LENGTH_SHORT).show();
             }
             else
             {
-                //Get Token
-                FirebaseInstanceId.getInstance()
-                        .getInstanceId()
-                        .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                                if(task.isSuccessful()){
-                                    Common.updateToken(getBaseContext(), task.getResult().getToken());
-
-                                    Log.d("DarshilToken", task.getResult().getToken());
-
-                                    Intent intent =  new Intent (MainActivity.this, HomeActivity.class);
-                                    intent.putExtra(Common.IS_LOGIN, true);
-                                    startActivity(intent);
-                                    finish();
-                                }
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-
-                                Intent intent =  new Intent (MainActivity.this, HomeActivity.class);
-                                intent.putExtra(Common.IS_LOGIN, true);
-                                startActivity(intent);
-                                finish();
-                            }
-                        });
+                Toast.makeText(this, "Failed to SingIn", Toast.LENGTH_SHORT).show();
             }
 
         }
@@ -136,6 +117,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        providers = Arrays.asList(new AuthUI.IdpConfig.PhoneBuilder().build());
+
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        authStateListener = firebaseAuth1 -> {
+            FirebaseUser user = firebaseAuth1.getCurrentUser();
+            if(user!=null)
+            {
+                checkUserFromFirebase();
+            }
+        };
+
         Dexter.withActivity(this)
                 .withPermissions(
                         Manifest.permission.READ_CALENDAR,
@@ -143,8 +136,8 @@ public class MainActivity extends AppCompatActivity {
                 ).withListener(new MultiplePermissionsListener() {
 
             @Override public void onPermissionsChecked(MultiplePermissionsReport report) {
-                AccessToken accessToken = AccountKit.getCurrentAccessToken();
-                if(accessToken != null) //If Already Logged
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if(user != null) //If Already Logged
                 {
                     //Get Token
                     FirebaseInstanceId.getInstance()
@@ -191,6 +184,38 @@ public class MainActivity extends AppCompatActivity {
 
 
         //        printKeyHash();
+    }
+
+    private void checkUserFromFirebase() {
+        //Get Token
+        FirebaseInstanceId.getInstance()
+                .getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if(task.isSuccessful()){
+                            Common.updateToken(getBaseContext(), task.getResult().getToken());
+
+                            Log.d("DarshilToken", task.getResult().getToken());
+
+                            Intent intent =  new Intent (MainActivity.this, HomeActivity.class);
+                            intent.putExtra(Common.IS_LOGIN, true);
+                            startActivity(intent);
+                            finish();
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                        Intent intent =  new Intent (MainActivity.this, HomeActivity.class);
+                        intent.putExtra(Common.IS_LOGIN, true);
+                        startActivity(intent);
+                        finish();
+                    }
+                });
     }
 
     private void printKeyHash() {

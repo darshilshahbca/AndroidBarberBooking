@@ -22,13 +22,13 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.facebook.accountkit.AccountKit;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
@@ -61,6 +61,7 @@ import darshil.dev.androidbarberbooking.Interface.IBookingInfoLoadListener;
 import darshil.dev.androidbarberbooking.Interface.IBookingInformationChangeListener;
 import darshil.dev.androidbarberbooking.Interface.ICountItemInCartListener;
 import darshil.dev.androidbarberbooking.Interface.ILookbookLoadListener;
+import darshil.dev.androidbarberbooking.MainActivity;
 import darshil.dev.androidbarberbooking.Model.Banner;
 import darshil.dev.androidbarberbooking.Model.BookingInformation;
 import darshil.dev.androidbarberbooking.R;
@@ -109,6 +110,42 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
     TextView txt_time;
     @BindView(R.id.txt_time_remain)
     TextView txt_time_remain;
+
+    @OnClick(R.id.layout_user_information)
+    void onLogOutDialog()
+    {
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(getContext());
+        builder.setTitle("Log Out?")
+                .setMessage("Please confirm you really want to Log Out?")
+                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Common.currentBarber = null;
+                        Common.currentBooking = null;
+                        Common.currentSalon = null;
+                        Common.currentTimeSlot = -1;
+                        Common.currentBookingId="";
+                        Common.currentUser = null;
+
+                        FirebaseAuth.getInstance().signOut();
+
+                        Intent intent = new Intent(getContext(), MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        getActivity().finish();
+                    }
+                });
+
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.show();
+
+    }
 
     @OnClick(R.id.btn_change_booking)
     void changeBooking()
@@ -385,7 +422,8 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
 
 
         //Check is Logged
-        if (AccountKit.getCurrentAccessToken() != null)
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null)
         {
             setUserInformation();
             loadBanner();

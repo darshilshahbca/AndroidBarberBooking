@@ -20,15 +20,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
-import com.facebook.accountkit.AccessToken;
-import com.facebook.accountkit.Account;
-import com.facebook.accountkit.AccountKit;
-import com.facebook.accountkit.AccountKitCallback;
-import com.facebook.accountkit.AccountKitError;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -300,21 +297,18 @@ public class Common {
 
 
 
-        AccessToken accessToken = AccountKit.getCurrentAccessToken();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        if(accessToken!=null)
+        if(user!=null)
         {
-            AccountKit.getCurrentAccount(new AccountKitCallback<Account>() {
-                @Override
-                public void onSuccess(Account account) {
                     MyToken myToken = new MyToken();
                     myToken.setToken(token);
                     myToken.setTokenType(TOKEN_TYPE.CLIENT);
-                    myToken.setUserPhone(account.getPhoneNumber().toString());
+                    myToken.setUserPhone(user.getPhoneNumber());
 
                     FirebaseFirestore.getInstance()
                             .collection("Tokens")
-                            .document(account.getPhoneNumber().toString())
+                            .document(user.getPhoneNumber())
                             .set(myToken)
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
@@ -323,29 +317,24 @@ public class Common {
                                 }
                             });
 
-                }
 
-                @Override
-                public void onError(AccountKitError accountKitError) {
 
-                }
-            });
         } else{
             Paper.init(context);
-            String user = Paper.book().read(Common.LOGGED_KEY);
+            String localUser = Paper.book().read(Common.LOGGED_KEY);
 
-            if(user!=null)
+            if(localUser!=null)
             {
-                if(!TextUtils.isEmpty(user))
+                if(!TextUtils.isEmpty(localUser))
                 {
                     MyToken myToken = new MyToken();
                     myToken.setToken(token);
                     myToken.setTokenType(TOKEN_TYPE.CLIENT);
-                    myToken.setUserPhone(user);
+                    myToken.setUserPhone(localUser);
 
                     FirebaseFirestore.getInstance()
                             .collection("Tokens")
-                            .document(user)
+                            .document(localUser)
                             .set(myToken)
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override

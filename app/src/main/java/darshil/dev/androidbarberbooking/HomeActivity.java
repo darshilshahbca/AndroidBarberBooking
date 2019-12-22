@@ -6,16 +6,13 @@ import androidx.fragment.app.Fragment;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
-
-import com.facebook.accountkit.Account;
-import com.facebook.accountkit.AccountKit;
-import com.facebook.accountkit.AccountKitCallback;
-import com.facebook.accountkit.AccountKitError;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -23,6 +20,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -43,6 +42,8 @@ import dmax.dialog.SpotsDialog;
 import io.paperdb.Paper;
 
 public class HomeActivity extends AppCompatActivity {
+
+    private static final String TAG = "HomeActivity";
 
     @BindView(R.id.bottom_navigation)
     BottomNavigationView bottomNavigationView;
@@ -80,6 +81,11 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+//    @Override
+//    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
+//        super.onSaveInstanceState(outState, outPersistentState);
+//    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,63 +104,55 @@ public class HomeActivity extends AppCompatActivity {
             {
                 dialog.show();
                 //Check if User Exists
-                AccountKit.getCurrentAccount(new AccountKitCallback<Account>() {
-                    @Override
-                    public void onSuccess(Account account) {
-                        if(account!=null)
-                        {
-                            //Save UserPhone by Paper
-                            Paper.init(HomeActivity.this);
-                            Paper.book().write(Common.LOGGED_KEY, account.getPhoneNumber().toString());
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                Log.d(TAG, "onCreate: " + user.getPhoneNumber());
 
-                            DocumentReference currentUser = userRef.document(account.getPhoneNumber().toString());
-                            currentUser.get()
-                                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                            if(task.isSuccessful())
-                                            {
-                                                DocumentSnapshot userSnapShot = task.getResult();
-                                                if(!userSnapShot.exists())
-                                                {
-                                                    showUpdateDialog(account.getPhoneNumber().toString());
-                                                }
-                                                else
-                                                {
-                                                    Common.currentUser = userSnapShot.toObject(User.class);
-                                                    bottomNavigationView.setSelectedItemId(R.id.action_home);
-                                                }
+                //Save UserPhone by Paper
+                Paper.init(HomeActivity.this);
+                Paper.book().write(Common.LOGGED_KEY, user.getPhoneNumber());
+
+                DocumentReference currentUser = userRef.document(user.getPhoneNumber());
+                currentUser.get()
+                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if(task.isSuccessful())
+                                {
+                                    DocumentSnapshot userSnapShot = task.getResult();
+                                    if(!userSnapShot.exists())
+                                    {
+                                        showUpdateDialog(user.getPhoneNumber());
+                                    }
+                                    else
+                                    {
+                                        Common.currentUser = userSnapShot.toObject(User.class);
+                                        bottomNavigationView.setSelectedItemId(R.id.action_home);
+                                    }
 
 
 
-                                                if(dialog.isShowing())
-                                                    dialog.dismiss();
+                                    if(dialog.isShowing())
+                                        dialog.dismiss();
 
 
-                                            }
-                                        }
-                                    });
-                        }
-
-                    }
-
-                    @Override
-                    public void onError(AccountKitError accountKitError) {
-                        Toast.makeText(HomeActivity.this, ""+accountKitError.getErrorType().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                                }
+                            }
+                        });
             }
+
         }
 
-        //View
+
+
+//View
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             Fragment fragment = null;
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-               if(menuItem.getItemId() == R.id.action_home)
-                   fragment = new HomeFragment();
-               else if (menuItem.getItemId() == R.id.action_shopping)
-                   fragment = new ShopingFragment();
+                if(menuItem.getItemId() == R.id.action_home)
+                    fragment = new HomeFragment();
+                else if (menuItem.getItemId() == R.id.action_shopping)
+                    fragment = new ShopingFragment();
 
 
                 return loadFragment(fragment);
@@ -216,14 +214,14 @@ public class HomeActivity extends AppCompatActivity {
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        bottomSheetDialog.dismiss();
-                        if(dialog.isShowing())
-                            dialog.dismiss();
-                        Toast.makeText(HomeActivity.this,""+e.getMessage(),Toast.LENGTH_SHORT).show();
-                    }
-                }) ;
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                bottomSheetDialog.dismiss();
+                                if(dialog.isShowing())
+                                    dialog.dismiss();
+                                Toast.makeText(HomeActivity.this,""+e.getMessage(),Toast.LENGTH_SHORT).show();
+                            }
+                        }) ;
             }
         });
 
